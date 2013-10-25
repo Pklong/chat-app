@@ -35,14 +35,16 @@ var router = function(request, response){
 	console.log(url);
 	if (url === "/"){
 		serveFile(response, "public/index.html");
-	} else if (fs.exists(url, function(err, data){
-		if (err) {
-			serve404(response);
-		} else {
-			serveFile(response, url);
-		}
-	}));
-}
+	} else {
+	  fs.exists((url), function(err, data){
+			if (err) {
+				serve404(response);
+			} else {
+				serveFile(response, ("public" + url));
+			} // end inner if/else
+	  }); // end outer fs.exists callback
+	} // end outer if/else
+} // end router function
 
 //-----The Static Server
 http.createServer(function (request, response) {
