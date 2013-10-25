@@ -2,7 +2,7 @@ var http = require('http');
 var fs = require('fs');
 var path = require('path');
 var mime = require('mime');
-
+var listen = require('lib/chat-server.js').listen;
 //-----Router
 
 //-----Route Handlers
@@ -47,8 +47,13 @@ var router = function(request, response){
 } // end router function
 
 //-----The Static Server
-http.createServer(function (request, response) {
+var httpServer = http.createServer(function (request, response) {
 	router(request, response);
-}).listen(8080);
+});
+
+http_server.listen(8080);
 
 console.log('Server running at http://127.0.0.1:8080/');
+
+//-----Piggyback the socketIOServer on the HTTP server
+socketIOListen(httpServer);
