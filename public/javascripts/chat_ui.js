@@ -16,7 +16,7 @@ $(document).ready(function() {
 	
 	socket.on('message', function(message) {
 		var newElement = escapeDivText(message.text);
-		$('#content').append(newElement);
+		// $('#content').append(newElement);
 	});
 	$('.send-form').submit(function(e) {
 		e.preventDefault();
