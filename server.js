@@ -2,32 +2,36 @@ var http = require('http');
 var fs = require('fs');
 var path = require('path');
 var mime = require('mime');
-//-----Router
-
-//-----Route Handlers
-//TODO: write route handlers
+//-----Router and Route Handlers
 
 var serveFile = function(response, absPath){
 	console.log("serving file at ", absPath);
 	fs.readFile(absPath, function(err, data) {
 		if (err) {
-			console.log(err);
-			serve404(response);
+			console.log("ERROR LOGGED: ", err);
+			serveError(response, 500);
 		} else {
 			response.writeHead(
 				200,
-				{"content-type": mime.lookup(path.basename(absPath))});
+				{"Content-Type": mime.lookup(path.basename(absPath))});
 			response.end(data);	
 		}
 	})
 };
 
-
-var serve404 = function(response){
-	response.writeHead(404, {'Content-Type': 'text/plain'});
-	response.write('Error 404: resource not found.');
+var serveError = function(response, errorCode){
+  var message;
+  if (errorCode === 404){
+    message = 'Error 404: resource not found.';
+  } else if (errorCode === 500){
+    message = 'Error 500: there was a problem serving the requested file.';
+  } else {
+    message = 'Error: there was a problem.';    
+  }
+  response.writeHead(errorCode, {"Content-Type": "text/plain"});
+  response.write(message);
 	response.end();
-};
+}
 
 var router = function(request, response){
 	var url = request.url;
@@ -37,7 +41,7 @@ var router = function(request, response){
 	} else {
 	  fs.exists((url), function(err, data){
 			if (err) {
-				serve404(response);
+				serveError(response, 404);
 			} else {
 				serveFile(response, ("public" + url));
 			} // end inner if/else
@@ -50,9 +54,11 @@ var httpServer = http.createServer(function (request, response) {
 	router(request, response);
 });
 
-httpServer.listen(8080);
+var port = 8080;
 
-console.log('Server running at http://127.0.0.1:8080/');
+httpServer.listen(port);
+
+console.log('Server running at http://localhost:' + port + '/');
 
 //-----Piggyback the socketIOServer on the HTTP server
 var socketIOListen = require('./lib/chat-server.js').socketIOListen;

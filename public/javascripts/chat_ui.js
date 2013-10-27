@@ -4,7 +4,7 @@ var escapeDivText = function(text) {
 	return $("<div></div>").text(text);
 }
 
-var processInput = function (chatApp, socket) {
+var processInput = function (chatApp) {
 	var text = $('#send-message').val();
 	chatApp.sendMessage(text);
 	$("#content").append(escapeDivText(text));
@@ -16,11 +16,10 @@ $(document).ready(function() {
 	
 	socket.on('message', function(message) {
 		var newElement = escapeDivText(message.text);
-		// $('#content').append(newElement);
 	});
 	$('.send-form').submit(function(e) {
 		e.preventDefault();
-		processInput(chatApp, socket);
+		processInput(chatApp);
 		return false;
 	})
 });
