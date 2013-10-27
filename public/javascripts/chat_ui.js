@@ -15,6 +15,7 @@ $(document).ready(function() {
 	var chatApp = new Chat(socket);
 	socket.on('message', function(message) {
 		var newElement = escapeDivText(message);
+		$("#chat-messages").append(escapeDivText(message.text));
 	});
 	$('.send-form').submit(function(e) {
 		e.preventDefault();
