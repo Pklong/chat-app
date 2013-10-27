@@ -14,6 +14,22 @@ var processInput = function (chatApp) {
 	$("#send-message").val('');
 }
 
+var updateRoomList = function(roomData){
+  $(".room-listings").empty();
+  $.each(roomData, function(room, userList){
+    if(room.length > 0){
+      var roomListing = $("<div></div>").addClass("room-listing");
+      roomListing.append($("<h3></h3>").text(room));
+      var usersUL = $("<ul></ul>");
+      $.each(userList, function(i, username){
+        usersUL.append($("<li></li>").text(username));
+      });
+      roomListing.append(usersUL);
+      $(".room-listings").append(roomListing); 
+    }
+  });
+}
+
 $(document).ready(function() {
 	var chatApp = new Chat(socket);
 	socket.on('message', function(message) {
@@ -27,6 +43,7 @@ $(document).ready(function() {
 	});
 	socket.on('roomList', function(roomData){
 	  console.log(roomData);
+	  updateRoomList(roomData);
 	});
 	$('.send-form').submit(function(e) {
 		e.preventDefault();
