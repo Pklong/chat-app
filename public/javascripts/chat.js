@@ -1,6 +1,6 @@
 var Chat = function(socket){
 	this.socket = socket;
-	this.room;
+	this.room = "lobby"; // TODO: how to set this default?
 }
 
 Chat.prototype.sendMessage = function(text){
