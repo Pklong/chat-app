@@ -1,9 +1,16 @@
 var Chat = function(socket){
 	this.socket = socket;
+	this.room;
 }
 
 Chat.prototype.sendMessage = function(text){
-	this.socket.emit('message', { text: text });
+	this.socket.emit('message', { text: text, room: this.room });
+}
+
+Chat.prototype.joinRoom = function(room){
+  this.room = room;
+  this.socket.emit('roomChangeRequest', room);
+  this.sendMessage("Switched to " + room);
 }
 
 Chat.prototype.processCommand = function(command){
@@ -12,7 +19,10 @@ Chat.prototype.processCommand = function(command){
    case 'nick':
      var newName = commandArgs[1];
      this.socket.emit('nicknameChangeRequest', newName);
-     console.log("logged nick as ", newName);
+     break;
+   case 'join':
+     var newRoom = commandArgs[1];
+     this.joinRoom(newRoom);
      break;
    default:
      this.socket.emit('message', { text: "unrecognized command" });
