@@ -7,7 +7,7 @@ var escapeDivText = function(text) {
 var processInput = function (chatApp) {
 	var text = $('#send-message').val();
 	chatApp.sendMessage(text);
-	$("#content").append(escapeDivText(text));
+	$("#chat-messages").append(escapeDivText(text));
 	$("#send-message").val('');
 }
 
