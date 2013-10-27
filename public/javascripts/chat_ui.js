@@ -25,6 +25,9 @@ $(document).ready(function() {
 	    $("#chat-messages").append(escapeDivText(result.text)); 
 	  }
 	});
+	socket.on('roomList', function(roomData){
+	  console.log(roomData);
+	});
 	$('.send-form').submit(function(e) {
 		e.preventDefault();
 		processInput(chatApp);
