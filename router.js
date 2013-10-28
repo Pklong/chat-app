@@ -2,8 +2,6 @@ var fs = require('fs');
 var path = require('path');
 var mime = require('mime');
 
-//-----Router and Route Handlers
-
 var serveFile = function(response, absPath){
 	console.log("serving file at ", absPath);
 	fs.readFile(absPath, function(err, data) {
@@ -22,6 +20,7 @@ var serveFile = function(response, absPath){
 var serveError = function(response, errorCode){
   var message;
   if (errorCode === 404){
+    //TODO: Serve an actual HTML page for these.
     message = 'Error 404: resource not found.';
   } else {
     message = 'Error: there was a problem.';    
@@ -33,7 +32,7 @@ var serveError = function(response, errorCode){
 
 var router = function(request, response){
 	var url = request.url;
-	console.log(url);
+	console.log("Routing to ", url);
 	if (url === "/"){
 		serveFile(response, "public/index.html");
 	} else {
