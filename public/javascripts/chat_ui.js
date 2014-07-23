@@ -1,56 +1,67 @@
-(function(root){
-  var ChatApp = root.ChatApp = (root.ChatApp || {});
-  var socket = io.connect();
+/*globals $, _ */
 
-  var escapeDivText = function(text) {
-  	return $("<div></div>").text(text);
-  }
+(function (root) {
+  var App = root.App = (root.App || {});
 
-  var processInput = function (chatApp) {
-  	var text = $('#send-message').val();
-  	if(text[0] === '/'){
-      chatApp.processCommand(text.slice(1));	  
-  	} else {
-    	chatApp.sendMessage(text); 
-  	}
-  	$("#send-message").val('');
-  }
+  var ChatUI = App.ChatUI = function (chat) {
+    this.chat = chat;
+    this.$messages = $('#messages');
+    this.$rooms = $('#rooms');
+    this.$newMessage = $('#new-message');
+    this.messageTemplate = _.template($('#message-tmpl').html());
+    this.roomTemplate = _.template($('#room-tmpl').html());
 
-  var updateRoomList = function(roomData){
-    $(".room-listings").empty();
-    $.each(roomData, function(room, userList){
-      if(room.length > 0){
-        var roomListing = $("<div></div>").addClass("room-listing");
-        roomListing.append($("<h3></h3>").text(room));
-        var usersUL = $("<ul></ul>");
-        $.each(userList, function(i, username){
-          usersUL.append($("<li></li>").text(username));
-        });
-        roomListing.append(usersUL);
-        $(".room-listings").append(roomListing); 
+    this.registerHandlers();
+  };
+
+  _.extend(ChatUI.prototype, {
+    registerHandlers: function () {
+      var chatUi = this;
+
+      this.chat.socket.on('message', function (message) {
+        var msg = chatUi.messageTemplate(message);
+        chatUi.$messages.append(msg);
+      });
+
+      this.chat.socket.on('nicknameChangeResult', function (result) {
+        if (result.success) {
+          var $div = $('<div>');
+          $div.text(result.text);
+          chatUi.$messages.append($div);
+        }
+      });
+
+      this.chat.socket.on('roomList', function (roomData) {
+        console.log(roomData);
+        chatUi.updateRoomList(roomData);
+      });
+
+      $('#send-form').on('submit', function (event) {
+        event.preventDefault();
+        chatUi.processInput();
+      });
+    },
+
+    processInput: function () {
+      var text = this.$newMessage.val();
+      if (text[0] === '/') {
+        this.chat.processCommand(text.slice(1));
+      } else {
+        this.chat.sendMessage(text);
       }
-    });
-  }
+      this.$newMessage.val('');
+    },
 
-  $(document).ready(function() {
-  	var chatApp = new ChatApp.Chat(socket);
-  	socket.on('message', function(message) {
-  		var newElement = escapeDivText(message);
-  		$("#chat-messages").append(escapeDivText(message.text));
-  	});
-  	socket.on('nicknameChangeResult', function(result) {
-  	  if(result.success){
-  	    $("#chat-messages").append(escapeDivText(result.text)); 
-  	  }
-  	});
-  	socket.on('roomList', function(roomData){
-  	  console.log(roomData);
-  	  updateRoomList(roomData);
-  	});
-  	$('.send-form').submit(function(e) {
-  		e.preventDefault();
-  		processInput(chatApp);
-  		return false;
-  	});
+    updateRoomList: function (roomData) {
+      this.$rooms.empty();
+      console.log(roomData);
+      for(var room in roomData) {
+        var content = this.roomTemplate({
+          name: room,
+          usernames: roomData[room]
+        });
+        this.$rooms.append(content);
+      }
+    }
   });
-})(this);
+}(this));

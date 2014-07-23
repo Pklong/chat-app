@@ -1,11 +1,24 @@
 {
-  "name": "chat-app",
-  "version": "0.0.1",
-  "description": "Chatroom App",
-  "main": "server",
+  "name": "chatapp",
+  "version": "0.0.0",
+  "description": "0. `npm install` 0. `node .`",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/appacademy-demos/chatapp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/appacademy-demos/chatapp/issues"
+  },
+  "homepage": "https://github.com/appacademy-demos/chatapp",
   "dependencies": {
-    "socket.io": "~0.9.6",
-    "mime": "~1.2.7",
-    "lodash": "~1.3.1"
+    "lodash": "^2.4.1",
+    "node-static": "^0.7.4",
+    "socket.io": "1.0.x"
   }
 }
