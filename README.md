@@ -393,14 +393,9 @@ testing much easier!
 
 * Refactor the nickname management functionality in the `chat_server.js`
   file to be a class `NicknameManager` with attributes and methods.
-* Caching files (in the static `http` server)
 
-(Right now, the server loads a file using `fs` each time it is
-requested.  To cache the file in a simplified way, we can save it's
-contents in a hash under the name of the file and then look there
-first before reading files with `fs.)
-
-* CSS and styling (serve CSS and images as static files)
+* CSS and styling (serve CSS and images as static files). Make a sidebar!
+* Private messages between users.
 * Allow users to subscribe to multiple chat rooms, and use client-side
   jQuery to allow them to switch between tabs for viewing the
   different rooms.
