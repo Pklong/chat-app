@@ -1,8 +1,3 @@
-# Starting This App
-
-0. `npm install`
-0. `node .` 
-
 # Node.js Chat App
 
 ## Overview
@@ -36,66 +31,45 @@ are going to follow convention by using this structure.
 
 ### `package.json`
 
-Run `npm init` to build your package json (you can give the default
-answer for most of the questions by just pressing enter for all of the
-prompts).
-
-Add a [package.json][package_json] file to your root
-directory, and list "socket.io" version "1.3.x", "mime" version
-"~1.2.7", and "node-static" version "^0.7.4" as dependencies.  We'll be using Socket.IO to add
-cross-browser support for websockets, and the "mime" library will
-allow us to set the MIME types when serving static files.  Once the
-package.json file is complete, run `npm install` (think bundle
-install) from the command line.
-
-This will create a `node_modules` directory with your dependency
-scripts.  Add a [`.gitignore`][gitignore] with `node_modules` in it;
-we're not going to commit the vendor libraries to github.
-
-[gitignore]: http://www.sujee.net/tech/articles/gitignore/
-[package_json]: https://www.npmjs.org/doc/files/package.json.html
+`npm init -y`
+`npm install --save socket.io express`
+`npm install --save-dev nodemon`
 
 ## Phase II: Serving Static Files
 
-**You will use the [node-static library][node-static] to serve static files.**
-
-Node has a very powerful http module which can be used to respond to http
-requests. For today's project we'll be sending back the contents of some
-static files. One great node module for serving static files is `node-static`.
-The code below will serve up the files in the `public` directory.
+**You will use the [express library][express-static] to serve static files.**
 
 ```javascript
 // lib/app.js
-var http = require('http'),
-  static = require('node-static');
+const express = require('express')
+const app = express()
+const path = require('path')
 
-var file = new static.Server('./public');
+app.use(express.static('public'))
 
-var server = http.createServer(function (req, res) {
-  req.addListener('end', function () {
-    file.serve(req, res);
-  }).resume();
-});
+const PORT = +process.argv[2] || 1337
 
-server.listen(8000);
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'))
+})
+
+app.listen(PORT, () => {
+  console.log(`listening on ${PORT}`)
+})
 ```
 
-[node-static]: https://github.com/cloudhead/node-static
+[express-static]: http://expressjs.com/en/starter/static-files.html
 
 ### `public/index.html`
 
-Add an `index.html` file to act as the root page for your app.
-Include `jquery` to start with, and as we add client-side javascript
-files be sure to include them in the `<head>` element of your html
-page.
+Add an `index.html` file to act as the root page for your app. 
+As we add client-side javascript files be sure to include them in the `<head>` element of your html page.
 
 Add some html to create a place to display messages and a form for
-inputing messages, but don't worry too much about styling or css.
+inputing messages.
 
-Test out the static file serving: Start up the server with `node
-lib/app.js` and visit `http://localhost:8000/`.
+Test out the static file serving: Start up the server with `npm run start:dev` and visit `http://localhost:1337`.
 
-[node-js-synopsis]: http://nodejs.org/api/synopsis.html
 
 ## Phase III: Basic Chat Functionality
 
