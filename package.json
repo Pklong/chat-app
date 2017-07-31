@@ -7,6 +7,7 @@
     "lib": "lib"
   },
   "scripts": {
+    "build": "webpack --watch",
     "start:dev": "nodemon lib/app.js",
     "start:debug": "nodemon --inspect lib/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -24,7 +25,8 @@
   "homepage": "https://github.com/Pklong/chatapp#readme",
   "dependencies": {
     "express": "^4.15.3",
-    "socket.io": "^2.0.3"
+    "socket.io": "^2.0.3",
+    "webpack": "^3.4.1"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"

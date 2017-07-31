@@ -47,7 +47,7 @@ const path = require('path')
 
 app.use(express.static('public'))
 
-const PORT = +process.argv[2] || 1337
+const PORT = 8000
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'))
@@ -62,13 +62,14 @@ app.listen(PORT, () => {
 
 ### `public/index.html`
 
-Add an `index.html` file to act as the root page for your app. 
-As we add client-side javascript files be sure to include them in the `<head>` element of your html page.
+Add an `index.html` file to act as the root page for your app. Check out the [Socket.io docs][socket-io] 
+to see how to load their library client-side. You'll want to load your webpack bundle as well.
 
-Add some html to create a place to display messages and a form for
-inputing messages.
+Add some html to create a place to display messages and a form for inputing messages.
 
-Test out the static file serving: Start up the server with `npm run start:dev` and visit `http://localhost:1337`.
+Test out the static file serving: Start up the server with `npm run start:dev` and visit `http://localhost:3000`.
+
+[socket-io]: https://socket.io/docs/client-api/
 
 
 ## Phase III: Basic Chat Functionality
@@ -87,28 +88,16 @@ Start a file for the Socket.IO server, and require the `socket.io`
 library.  You'll set up your server in this file and then export a
 `createChat` function that can be called in the main `app.js` file.
 
-The [Socket.IO documentation][socket-io-docs] has many examples of
-setting up a server.  Here's one:
-
-```javascript
-var io = require('socket.io')(server);
-
-io.on('connection', function (socket) {
-  socket.emit('some_event_name', { hello: 'world' });
-  socket.on('some_other_event_name', function (data) {
-    console.log(data);
-  });
-});
-```
+The [Socket.IO documentation][socket-io-docs-server] has many examples of
+setting up a server.
 
 The `socket.io` server piggybacks off of a `server`
-defined with `http` such as the one you defined in `app.js` using the
-node-static library. In our code, we'll separate the logic for the
+defined with `http` such as the one you defined in `app.js` using express. In our code, we'll separate the logic for the
 socket.io server into a `chat_server.js` file.
 
 Because *your* socket.io server is in another file, you will need to
-`require('./chat_server')` in your `app.js` file.  In
-`chat_server.js`, define a function `createChat` that takes a server
+`require('./chatServer')` in your `app.js` file.  In
+`chatServer.js`, define a function `createChat` that takes a server
 and "runs" socket.IO on it like the example does with "server". In your
 `app.js` file, you're going to call this function, passing in the
 server that you made.
@@ -142,41 +131,24 @@ app waiting for different types of requests:
 2. Our socket.io server listening for socket requests (this will send
    messages back and forth).
 
-Test that your code works by firing up your server with a special debug command:
+Test that your code works!
 
-```
-$ DEBUG=socket.io:* node lib/app.js
-```
+[socket-io-docs-server]: https://socket.io/docs/server-api/
 
-You should see an output similar to the following:
-
-```
-$ DEBUG=socket.io:* node lib/app.js
-  socket.io:server initializing namespace / +0ms
-  socket.io:server creating engine.io instance with opts {"path":"/socket.io"} +4ms
-  socket.io:server attaching client serving req handler +2ms
-```
-
-[socket-io-docs]: http://socket.io/docs/
-
-## Client-side
+## [Client-side](https://socket.io/docs/client-api/)
 
 Next, we need the client-side JavaScript to support sending messages
 to the server and displaying messages received from the server.
 
-Require the socket.io library in the head of your index.html file.
-Check the docs on how to do this.  You should now have a global
-function called `io` in your client-side code.
+Require the socket.io library in your webpack entry file.
 
-Test it out!  Open your index page, and run `io()` in the chrome developer
+Open your index page, and run `io()` in the chrome developer
 console. See if you can make the server print something out when it
-connects. If all is well, invoking `io()` should log:
-`Socket {io: Manager, nsp: "/", json: Socket, ids: 0, acks: Object…}`.
+connects.
 
 
 ### `public/javascripts/chat.js`
 
-Use the module pattern to namespace this client-side javascript.
 
 In a new file `public/javascripts/chat.js`, make a class constructor
 `Chat` that receives socket as an attribute and stores it for later.
@@ -185,44 +157,19 @@ Add a `sendMessage` method to the `Chat` class for transmitting a
 message to all users.  Use the `emit` method to emit the `message`
 event with the text of the message.
 
-### `public/javascripts/chat_ui.js`
+### `public/javascripts/chatUI.js`
 
 In a separate file we'll write the code to actually interact with the
 HTML user interface.
 
 You'll be using an instance of the `Chat` class to send messages to
-the server.  Get the socket to pass into it by calling `var socket =
-io();`.
+the server.
 
 Write some helper functions that will:
  * get the message from the input form
  * send the message to other users (calling the `sendMessage` method
    of the Chat object,)
  * add it to the top of the display area for that user
-
-Make sure to add the necessary HTML to your index page as well.
-
-When dealing with untrusted data, (which is any data input or affected
-by the user), you must be careful to escape any HTML or JavaScript
-characters.  Use the `jquery` `.text` rather than the `.html` method
-to add untrusted data to your page.
-[This JSFiddle][escaping-with-jquery] demonstrates why.
-
-This file is a fine place to initialize a socket.io connection on
-document ready and tell it to listen for the `message` event.  You
-will need to append new messages to the chat window when they are
-received.  This could also be implemented as a method on the `Chat`
-class object.
-
-Finally, bind the `submit` event of the `send-message` form to trigger
-the processing of user input.  Remember to wait until the form is on
-the page and the document is ready before attempting to bind events to it.
-
-You'll need to require the scripts `chat.js` and `chat_ui.js` in your
-`index.html` file, as well as requiring the `socket.io` library.
-
-[escaping-with-jquery]: http://jsfiddle.net/b6PW2/
-
 
 ## Phase IV: Nicknames for Users
 
