@@ -11,17 +11,17 @@ great fit for Node.js.
 Start with the following directory structure:
 
 ```
-//my_chat_app/
+//ChatApp/
 //|
+//--app.js
 //--lib/
 //  |
-//  --app.js
-//  --chat_server.js
+//  --chatServer.js
 //--public/
 //  |
 //  --javascripts/
 //    |
-//    --chat_ui.js
+//    --chatUI.js
 //    --chat.js
 //  --index.html
 ```
@@ -82,7 +82,7 @@ is composed of two parts.
 
 Let's start with the server.
 
-### `lib/chat_server.js`
+### `lib/chatServer.js`
 
 Start a file for the Socket.IO server, and require the `socket.io`
 library.  You'll set up your server in this file and then export a
@@ -93,7 +93,7 @@ setting up a server.
 
 The `socket.io` server piggybacks off of a `server`
 defined with `http` such as the one you defined in `app.js` using express. In our code, we'll separate the logic for the
-socket.io server into a `chat_server.js` file.
+socket.io server into a `chatServer.js` file.
 
 Because *your* socket.io server is in another file, you will need to
 `require('./chatServer')` in your `app.js` file.  In
@@ -183,7 +183,7 @@ them a default username and allowing them to switch once they connect
 to the application.  Users should be able to enter `/nick
 desired_nickname_here` in order to switch nicknames.
 
-### changes to `lib/chat_server.js`
+### changes to `lib/chatServer.js`
 
 We will add the logic for keeping track of and changing nicknames to
 the `chat_server.js` file.  Use helper functions as needed.

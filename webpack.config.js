@@ -2,10 +2,10 @@ const path = require('path')
 const webpack = require('webpack')
 
 const config = {
-  entry: path.join(__dirname, './public/index.js'),
+  entry: path.join(__dirname, './public/javascripts/index.js'),
   output: {
     filename: 'bundle.js',
-    path: path.join(__dirname, './public/')
+    path: path.join(__dirname, './public/javascripts/dist/')
   },
   plugins: [
     new webpack.ProgressPlugin()
