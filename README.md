@@ -42,9 +42,9 @@ we're seperating client-side and server-side JavaScript.
 
 ### `package.json`
 
-`npm init -y`
-`npm install --save [socket.io][socket-doc] express webpack`
-`npm install --save-dev [nodemon][nodemon-doc]`
+0. `npm init -y`
+0. `npm install --save` [socket.io][socket-doc] `express webpack`
+0. `npm install --save-dev` [nodemon][nodemon-doc]
 
 [socket-doc]: https://socket.io/docs/
 [nodemon-doc]: https://nodemon.io/
@@ -53,15 +53,15 @@ we're seperating client-side and server-side JavaScript.
 
 Use the [express library][express-intro] to simplify routing. We need to serve `index.html` whenever a user makes a `GET` request to `/`. Our `index.html` will source static assets such as css files and client-side javascript. [Look here][express-static] to learn how to handle serving static assets.
 
-```javascript
-// lib/app.js
+
+`lib/app.js`
 1) require express
 2) create a new app with express
 3) make the app use express' static middleware
 4) define a route and callback on the app
-    4a) callback should send the index.html file as a response
+    * callback should send the index.html file as a response
 5) tell app to listen on a port (you'll visit the url => localhost:{PORT_NUMBER})
-```
+
 
 [express-intro]: http://expressjs.com/en/starter/hello-world.html
 [express-static]: http://expressjs.com/en/starter/static-files.html
@@ -136,18 +136,18 @@ app waiting for different types of requests:
 2. Our socket.io server listening for socket requests (this will send
    messages back and forth).
    
-```javascript
-// lib/chatServer.js
+
+`lib/chatServer.js`
 1) require socket.io
 2) export an object with a single function: listen
 3) listen takes an http server as an argument
-    3a) provide the server to socket.io to create your socket server
+    * provide the server to socket.io to create your socket server
 4) define an event listener on the server for any 'connection'
-    4a) For now, just console.log "connected" in the callback
+    * For now, just console.log "connected" in the callback
 
-// app.js
+`app.js`
 1) require your chatServer and invoke listen
-```
+
 
 Test that your code works!
 
@@ -166,15 +166,14 @@ event with the text of the message.
 
 In a separate file we'll write the code to interact with the DOM.
 
-```javascript
-// public/javascripts/chatUI.js
+`public/javascripts/chatUI.js`
 1) receive socket in constructor and instantiate a Chat
 2) store references to DOM in constructor for ease of use
 3) Write functions to:
-    3a) retrieve user input
-    3b) emit messages submitted by user
-    3c) add received messages to the display
-```
+    * retrieve user input
+    * emit messages submitted by user
+    * add received messages to the display
+
 
 ## Phase IV: Nicknames for Users
 
@@ -192,47 +191,44 @@ desired_nickname_here` in order to switch nicknames.
 We will add the logic for keeping track of and changing nicknames to
 the `chatServer.js` file.  Use helper functions as needed.
 
-```javascript
-// lib/chatServer.js
+`lib/chatServer.js`
 1) Add variables to track number of guests and nicknames
-    1a) guestNum starts at 1 and increments with each new connection
-    2a) nickNames is an object storing the name under the socket's id
+    * guestNum starts at 1 and increments with each new connection
+    * nickNames is an object storing the name under the socket's id
 2) Listen for a nicknameChangeRequest event.
-    2a) filter for allowed nicknames (no duplicates or confusion with defaults)
-    2b) emit nicknameChangeResult event: success or failure, the client must know!
+    * filter for allowed nicknames (no duplicates or confusion with defaults)
+    * emit nicknameChangeResult event: success or failure, the client must know!
 3) Upon connection, assign a temporary guest name using the guestNum variable
-    3a) Logic is akin to changing a nickname (store name in hash, emit event, etc.)
+    * Logic is akin to changing a nickname (store name in hash, emit event, etc.)
 4) You are now able to preface a user's msg with their name!
 5) On 'disconnect', remove the user's nickname and announce departure to room
-```
+
 
 Test this server-side code before moving client-side.
 
 ### changes to `public/javascripts/chat.js`
 
-```javascript
-// lib/chat.js
+`lib/chat.js`
 1) Add a processCommand function
-    1a) We're checking for a 'nick' after '/', but more commands will come...
-    1b) Emit the appropriate event!
-```
+    * We're checking for a 'nick' after '/', but more commands will come...
+    * Emit the appropriate event!
 
 
 ### changes to `public/javascripts/chatUI.js`
 
-```javascript
-// lib/chatUI.js
+
+`lib/chatUI.js`
 1) Adjust the function which processes user input to account for commands
-```
+
 
 ### changes to `public/javascripts/index.js`
 
-```javascript
-// public/javascripts/index.js
+
+`public/javascripts/index.js`
 1) When document is ready, set up appropriate event handlers
-    1a) So far we have message events and name change events...
-    1b) What should your UI do when these events come from your chat server?
-```
+    * So far we have message events and name change events...
+    * What should your UI do when these events come from your chat server?
+
 
 Try out the new functionality and debug before moving on.
 
@@ -247,54 +243,51 @@ supports splitting connections up between *rooms*.
 
 ### Adding the functionality to `lib/chatServer.js`
 
-```javascript
-// lib/chatServer.js
+
+`lib/chatServer.js`
 1) Track the current room of each user in an object (similar to nicknames object)
 2) Write joinRoom helper:
-    2a) have socket join the provided room and update the currentRoom object
-    2b) new users should join 'lobby' automatically
+    * have socket join the provided room and update the currentRoom object
+    * new users should join 'lobby' automatically
 3) Adjust your chat broadcasts to [emit to rooms][emit-to-room]
 4) Write a helper handleRoomChangeRequest
-    4a) Successfully '/join'-ing a room will cause you to leave your current room
+    * Successfully '/join'-ing a room will cause you to leave your current room
 
-```
+
 [emit-to-room]: https://socket.io/docs/server-api/#socket-to-room
 
 ### Adding to `public/javascripts/chat.js`
 
-```javascript
-// public/javascripts/chat.js
+
+`public/javascripts/chat.js`
 1) Adjust sendMessage to take an additional argument: 'room'
 2) Write a function to handle changing rooms
-    2a) ChatUI's processCommand can delegate to this function if '/join' occurs
+    * ChatUI's processCommand can delegate to this function if '/join' occurs
 
-```
 
 ### Who is in which room?
 
-```javascript
-// lib/chatServer.js
+
+`lib/chatServer.js`
 1) Search Socket.IO docs for information about who is in a room...
-    1a) [Look here][room-info] and emit an appropriate response for client-side
-    1b) Emit this event whenever users change rooms (joining 'lobby' counts!)
+    * [Look here][room-info] and emit an appropriate response for client-side
+    * Emit this event whenever users change rooms (joining 'lobby' counts!)
 2) Listen for events asking which rooms are available
-    2a) Your client-side JS will be asking for this information...
+    * Your client-side JS will be asking for this information...
     
-// public/javascripts/index.js
+`public/javascripts/index.js`
 1) have your socket intermittently ping the server to see if any new rooms exist
 
-```
 
 ### Who left?
 
-```javascript
-// lib/chatServer.js
-1) ['disconnect'][disconnect] is a reserved event your server should handle
-    1a) Clean up all traces of the departing socket, reverse your 'connection' code
-```
+`lib/chatServer.js`
+1) [disconnect][disconnect] is a reserved event your server should handle
+    * Clean up all traces of the departing socket, reverse your 'connection' code
 
 
 Test your code!
+
 [disconnect]: https://socket.io/docs/server-api/#event-disconnect
 [room-info]: https://socket.io/docs/server-api/#namespace-clients-callback
 
