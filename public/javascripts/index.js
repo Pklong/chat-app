@@ -11,24 +11,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     myChat.addMsg(msg)
   })
-  
+
   socket.on('joinResult', (result) => {
     myChat.setRoom(result.room)
     myChat.addMsg('Room changed.')
   })
-  
+
   socket.on('message', (message) => {
     myChat.addMsg(message.text)
   })
-  
+
   socket.on('rooms', (rooms) => {
     myChat.roomList.innerHTML = ''
-    console.log(rooms)
     rooms.forEach(room => myChat.addRoom(room))
-    myChat.roomList.querySelectorAll('li').forEach( li => {
+    myChat.roomList.querySelectorAll('li').forEach(li => {
       li.addEventListener('click', (e) => {
-	myChat.chat.processCommand(`/join ${li.textContent}`)
-	myChat.input.focus()
+        myChat.chat.processCommand(`/join ${li.textContent}`)
+        myChat.input.focus()
       })
     })
   })
@@ -38,5 +37,4 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 1000)
 
   myChat.input.focus()
-  
 })

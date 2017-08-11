@@ -28,11 +28,10 @@ ChatUI.prototype.addMsg = function (msg) {
   this.msgList.appendChild(newMessage)
 }
 
-ChatUI.prototype.addRoom = function(room) {
+ChatUI.prototype.addRoom = function (room) {
   const newRoom = document.createElement('li')
   newRoom.textContent = room
   this.roomList.appendChild(newRoom)
-  
 }
 
 ChatUI.prototype.submitHandler = function () {
@@ -56,6 +55,5 @@ ChatUI.prototype.processUserInput = function () {
     this.addMsg(msg)
   }
 }
-
 
 module.exports = ChatUI

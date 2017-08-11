@@ -12,7 +12,7 @@
   "scripts": {
     "build": "webpack --watch",
     "start:dev": "nodemon app.js",
-    "start:debug": "nodemon --inspect app.js"
+    "start:debug": "DEBUG=* node app.js"
   },
   "repository": {
     "type": "git",

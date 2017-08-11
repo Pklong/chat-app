@@ -1,3 +1,81 @@
+body, h1, h3, ul, form, input, button, li,
+section, main {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  font: inherit;
+}
+
 body {
-    background: wheat;
+  background: wheat;
+}
+
+main {
+  margin: 20px;
+  border: 5px solid #a9a9a9;
+  border-radius: 5px;
+}
+
+section {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+
+form {
+  display: flex;
+  justify-content: space-between;
+}
+
+input[type=text] {
+  flex-grow: 1;
+}
+
+button {
+  
+}
+
+section {
+  background: #000;
+  color: #fff;
+  border-bottom: 5px solid #a9a9a9;
+}
+
+h1, h3 {
+  font-family: 'Orbitron', sans-serif;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2.5em;
+  padding: 20px 0;
+}
+
+h3 {
+  position: absolute;
+  top: 5px;
+}
+
+ul {
+  padding: 25px 15px;
+  list-style: none;
+  font-family: 'Exo 2', sans-serif;
+}
+
+.messages {
+  flex-grow: 1;
+}
+
+.rooms {
+  border-left: 5px solid #a9a9a9;
+  min-width: 120px;
+}
+
+.room-list-header {
+  right: 10px;
+}
+
+.active-room {
+  left: 10px;
 }

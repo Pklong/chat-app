@@ -2,9 +2,11 @@
 
 ## Overview
 
-This project involves writing a minimalist chatting app, and the
-frequent small events involved in chatting functionality make it a
-great fit for Node.js.
+This project involves writing a minimalist chatting app. The
+frequent events involved in chatting functionality make it a
+great fit for Node.js. 
+
+Events are an essential aspect of understanding Node, just as client-side JS deals with `click`, `submit`, `focus`, etc. events, your server-side code will deal with events both pre-determined and custom-built.
 
 ## Phase I: Setup
 
@@ -13,61 +15,64 @@ Start with the following directory structure:
 ```
 //ChatApp/
 //|
-//--app.js
+//--package.json (lists dependencies and provides scripts)
+//--webpack.config.js (bundles our client-side javascript)
+//--app.js (general application setup)
 //--lib/
 //  |
-//  --chatServer.js
+//  --chatServer.js (logic for server-side chat)
 //--public/
 //  |
+//  --stylesheets/
+//    --main.css 
 //  --javascripts/
 //    |
-//    --chatUI.js
-//    --chat.js
+//    --chatUI.js (for updating the DOM)
+//    --chat.js (for communicating with server)
+//    --index.js (webpack entry)
+//    dist/
+//    |
+//    --bundle.js
 //  --index.html
 ```
 
 Node.js doesn't require any specific structure for your app, but we
-are going to follow convention by using this structure.
+are going to follow convention by using this structure. In particular, notice that 
+we're seperating client-side and server-side JavaScript.
 
 ### `package.json`
 
 `npm init -y`
-`npm install --save socket.io express`
-`npm install --save-dev nodemon`
+`npm install --save [socket.io][socket-doc] express webpack`
+`npm install --save-dev [nodemon][nodemon-doc]`
 
-## Phase II: Serving Static Files
+[socket-doc]: https://socket.io/docs/
+[nodemon-doc]: https://nodemon.io/
 
-**You will use the [express library][express-static] to serve static files.**
+## Phase II: Serving index.html & Static Files
+
+Use the [express library][express-intro] to simplify routing. We need to serve `index.html` whenever a user makes a `GET` request to `/`. Our `index.html` will source static assets such as css files and client-side javascript. [Look here][express-static] to learn how to handle serving static assets.
 
 ```javascript
 // lib/app.js
-const express = require('express')
-const app = express()
-const path = require('path')
-
-app.use(express.static('public'))
-
-const PORT = 8000
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'))
-})
-
-app.listen(PORT, () => {
-  console.log(`listening on ${PORT}`)
-})
+1) require express
+2) create a new app with express
+3) make the app use express' static middleware
+4) define a route and callback on the app
+    4a) callback should send the index.html file as a response
+5) tell app to listen on a port (you'll visit the url => localhost:{PORT_NUMBER})
 ```
 
+[express-intro]: http://expressjs.com/en/starter/hello-world.html
 [express-static]: http://expressjs.com/en/starter/static-files.html
 
-### `public/index.html`
+### `public/javascripts/index.js & public/javascripts/dist/bundle.js`
 
-Add an `index.html` file to act as the root page for your app. Check out the [Socket.io docs][socket-io] 
-to see how to load their library client-side. You'll want to load your webpack bundle as well.
+Load the bundle output from your webpack entry file `index.js`. Check out the [Socket.io docs][socket-io] for how to require their library in your `index.js`.
 
 Add some html to create a place to display messages and a form for inputing messages.
 
-Test out the static file serving: Start up the server with `npm run start:dev` and visit `http://localhost:3000`.
+Test out the static file serving. `nodemon app.js`. Console.log the `socket.io` library you required in your `index.js` to test everything is working properly.
 
 [socket-io]: https://socket.io/docs/client-api/
 
@@ -130,221 +135,172 @@ app waiting for different types of requests:
    our index.html page).
 2. Our socket.io server listening for socket requests (this will send
    messages back and forth).
+   
+```javascript
+// lib/chatServer.js
+1) require socket.io
+2) export an object with a single function: listen
+3) listen takes an http server as an argument
+    3a) provide the server to socket.io to create your socket server
+4) define an event listener on the server for any 'connection'
+    4a) For now, just console.log "connected" in the callback
+
+// app.js
+1) require your chatServer and invoke listen
+```
 
 Test that your code works!
 
 [socket-io-docs-server]: https://socket.io/docs/server-api/
 
-## [Client-side](https://socket.io/docs/client-api/)
-
-Next, we need the client-side JavaScript to support sending messages
-to the server and displaying messages received from the server.
-
-Require the socket.io library in your webpack entry file.
-
-Open your index page, and run `io()` in the chrome developer
-console. See if you can make the server print something out when it
-connects.
-
-
 ### `public/javascripts/chat.js`
 
-
 In a new file `public/javascripts/chat.js`, make a class constructor
-`Chat` that receives socket as an attribute and stores it for later.
+`Chat` that receives and stores a socket.
 
 Add a `sendMessage` method to the `Chat` class for transmitting a
-message to all users.  Use the `emit` method to emit the `message`
+message to all users.  Use the `emit` method on the socket to emit the `message`
 event with the text of the message.
 
 ### `public/javascripts/chatUI.js`
 
-In a separate file we'll write the code to actually interact with the
-HTML user interface.
+In a separate file we'll write the code to interact with the DOM.
 
-You'll be using an instance of the `Chat` class to send messages to
-the server.
-
-Write some helper functions that will:
- * get the message from the input form
- * send the message to other users (calling the `sendMessage` method
-   of the Chat object,)
- * add it to the top of the display area for that user
+```javascript
+// public/javascripts/chatUI.js
+1) receive socket in constructor and instantiate a Chat
+2) store references to DOM in constructor for ease of use
+3) Write functions to:
+    3a) retrieve user input
+    3b) emit messages submitted by user
+    3c) add received messages to the display
+```
 
 ## Phase IV: Nicknames for Users
 
-In this app, the client-side and server-side javascript each listen
+Client-side and server-side JS each listen
 for and respond to events.  To implement any feature, you must add the
 logic on each side to listen for and respond to the event.
 
-The chat room right now is totally anonymous, and our users are
-clamoring for the ability to use a handle.  Let's add a feature giving
-them a default username and allowing them to switch once they connect
+The chat room right now is totally anonymous, add a feature giving
+users a default username and allow them to switch once they connect
 to the application.  Users should be able to enter `/nick
 desired_nickname_here` in order to switch nicknames.
 
 ### changes to `lib/chatServer.js`
 
 We will add the logic for keeping track of and changing nicknames to
-the `chat_server.js` file.  Use helper functions as needed.
+the `chatServer.js` file.  Use helper functions as needed.
 
-* Add two variables in `chat_server.js` that will track nickname data.
-  `guestnumber` should start at 1 and track the number of users who
-  connect.  `nicknames` should be a hash, and will store the names of
-  connected users. You can use the user's socket object's `.id`
-  property as the key.
+```javascript
+// lib/chatServer.js
+1) Add variables to track number of guests and nicknames
+    1a) guestNum starts at 1 and increments with each new connection
+    2a) nickNames is an object storing the name under the socket's id
+2) Listen for a nicknameChangeRequest event.
+    2a) filter for allowed nicknames (no duplicates or confusion with defaults)
+    2b) emit nicknameChangeResult event: success or failure, the client must know!
+3) Upon connection, assign a temporary guest name using the guestNum variable
+    3a) Logic is akin to changing a nickname (store name in hash, emit event, etc.)
+4) You are now able to preface a user's msg with their name!
+5) On 'disconnect', remove the user's nickname and announce departure to room
+```
 
-* Have the chat server listen for a `nicknameChangeRequest` event.
-  The callback for this event will filter for allowed nicknames and
-  then `emit` the appropriate `nicknameChangeResult` event.  Check
-  that the requested nickname is not taken already, (you can iterate
-  through the nicknames hash values,) and that is does not match the
-  conventions of your guest nickname assignment. For example, if
-  guests are given the nickname `guest_n_` with `n` being the
-  incremented `guestnumber`, then a user should not be able to change
-  their nickname to `guest123`.
-
-  An example failure message could be sent like
-  this:
-
-  ```javascript
-  socket.emit('nicknameChangeResult', {
-    success: false,
-    message: 'Names cannot begin with "Guest".'
-  });
-  ```
-
-* When a user connects, you need to assign them a temporary guest
-  nickname.  When doing this, increment the `guestnumber` variable,
-  which you can then use when generating a unique guest nickname.  If
-  this is successful, `emit` a `nicknameChangeResult` event and add
-  the new nickname to the `nicknames` hash.
-* Your users should be able to use special chat commands to do things
-  like change nicknames.  To make a name change, a user should type
-  `/nick newNicknameHere`, and that means your handler for the
-  `message` event will now need to parse out regular chat input and
-  commands prefixed with a `/`.  You can also append the user's
-  nickname to their regular chat messages, grabbing it from the
-  `nickNames` hash with `nickNames[socket.id]`.
-* Lastly, when a user disconnects their nickname must be removed from
-  the `nicknames` list and their departure announced to the room.
-
-Test that guest nicknames are working before moving to the front-end
-code.
-
-Client side code needs to display a list of users in the room and
-handle name change requests to the server.
+Test this server-side code before moving client-side.
 
 ### changes to `public/javascripts/chat.js`
 
-* Add a function `processCommand` to run when the text input begins
-  with a slash.  We want to allow for adding more commands in the
-  future, but for now the function needs to `emit` a
-  `nicknameChangeRquest` event if the command is `nick` or display an
-  error message if the command is not recognized.
+```javascript
+// lib/chat.js
+1) Add a processCommand function
+    1a) We're checking for a 'nick' after '/', but more commands will come...
+    1b) Emit the appropriate event!
+```
 
-### changes to `public/javascripts/chat_ui.js`
 
-* The function that processes user input should now delegate to
-  `processCommand` rather than `sendMessage` if the input begins with
-  a slash.
+### changes to `public/javascripts/chatUI.js`
 
-* Inside the `(document).ready(..)`, have the socket respond to the
-  `nicknameChangeResult` event by logging the nickname change.
+```javascript
+// lib/chatUI.js
+1) Adjust the function which processes user input to account for commands
+```
 
-Once again, try out the new functionality and debug before moving on.
+### changes to `public/javascripts/index.js`
 
-If you are working on a git branch for this phase, remember to merge
-the branch into master and change to a new branch before starting
-Phase 5.
+```javascript
+// public/javascripts/index.js
+1) When document is ready, set up appropriate event handlers
+    1a) So far we have message events and name change events...
+    1b) What should your UI do when these events come from your chat server?
+```
+
+Try out the new functionality and debug before moving on.
 
 ## Phase V: Multiple Rooms
 
-Up until now, all the messages have been sent to all users.  Socket.IO
-supports splitting connections up between many *rooms*.
+Currently, all messages are sent to all users. Socket.IO
+supports splitting connections up between *rooms*.
 
-Here; have some [documentation about rooms in Socket.IO][socket-io-rooms-docs].
+[Documentation about rooms in Socket.IO][socket-io-rooms-docs].
 
 [socket-io-rooms-docs]: http://socket.io/docs/rooms-and-namespaces/#rooms
 
-### Adding the functionality to `lib/chat_server.js`
-
-* Just like we track the current nickname of each connected user in
-  the `nicknames` variable, let's track the current room of each user
-  in a `currentRooms` hash.
-* Write a `joinRoom` helper method that will have a socket `join` the
-  specified room and update the `currentRooms` hash.
-* Automatically have connecting users `join` a `lobby` room when they
-  first connect.
-
-* Change all the `io.emit(...)` events to broadcast only to
-  the room specified in the message data:
+### Adding the functionality to `lib/chatServer.js`
 
 ```javascript
-  io.to('some room').emit('message', {
-    text: (nicknames[socket.id] + ": " + message.text)
-  });
-  ```
+// lib/chatServer.js
+1) Track the current room of each user in an object (similar to nicknames object)
+2) Write joinRoom helper:
+    2a) have socket join the provided room and update the currentRoom object
+    2b) new users should join 'lobby' automatically
+3) Adjust your chat broadcasts to [emit to rooms][emit-to-room]
+4) Write a helper handleRoomChangeRequest
+    4a) Successfully '/join'-ing a room will cause you to leave your current room
 
-* Add a helper function to `handleRoomChangeRequests`.  To start,
-  let's assume that users can only subscribe to one room at a time.  A
-  successful request to `/join room_name_here` will cause their socket
-  to `leave` the old room and join the chosen room name.
+```
+[emit-to-room]: https://socket.io/docs/server-api/#socket-to-room
 
 ### Adding to `public/javascripts/chat.js`
 
-* Your `Chat` class should now store a reference to the room, send out
-  the room as part of each `message`, and handle the command `/join
-  room_name_here` as part of it's `processCommand` method.
+```javascript
+// public/javascripts/chat.js
+1) Adjust sendMessage to take an additional argument: 'room'
+2) Write a function to handle changing rooms
+    2a) ChatUI's processCommand can delegate to this function if '/join' occurs
+
+```
 
 ### Who is in which room?
 
-* Use the API for getting information about rooms to add a panel for
-  displaying a list of users in each room.  You will need to have your
-  client-side javascript listen for a `roomList` event to update the
-  user interface.
-* The server-side `chat-server` code will need to send the `roomList`
-  event with data about rooms and users whenever a new socket connects
-  and when a user changes rooms.
+```javascript
+// lib/chatServer.js
+1) Search Socket.IO docs for information about who is in a room...
+    1a) [Look here][room-info] and emit an appropriate response for client-side
+    1b) Emit this event whenever users change rooms (joining 'lobby' counts!)
+2) Listen for events asking which rooms are available
+    2a) Your client-side JS will be asking for this information...
+    
+// public/javascripts/index.js
+1) have your socket intermittently ping the server to see if any new rooms exist
 
-Being able to see what rooms users are in will make debugging and
-testing much easier!
+```
+
+### Who left?
+
+```javascript
+// lib/chatServer.js
+1) ['disconnect'][disconnect] is a reserved event your server should handle
+    1a) Clean up all traces of the departing socket, reverse your 'connection' code
+```
+
+
+Test your code!
+[disconnect]: https://socket.io/docs/server-api/#event-disconnect
+[room-info]: https://socket.io/docs/server-api/#namespace-clients-callback
 
 ## Phase VI: More Features
 
-* Refactor the nickname management functionality in the `chat_server.js`
-  file to be a class `NicknameManager` with attributes and methods.
-
+* Host your application on Heroku, AWS, Digital Ocean, etc.
 * CSS and styling (serve CSS and images as static files). Make a sidebar!
 * Private messages between users.
-* Allow users to subscribe to multiple chat rooms, and use client-side
-  jQuery to allow them to switch between tabs for viewing the
-  different rooms.
-
-## Testing your chatroom from across the world (or room)
-
-You can visit the chatroom from two machines on the same network, even
-when the `node.js` server is just running on localhost.  Type the
-command `ifconfig` into terminal, and note the number that is your IP
-address.  (It will probably be next to the word `inet` and use a
-format of `###.#+.#+.#+`.  It is not `127.0.0.1`: that is your
-localhost address.)
-
-Start up your server with `node lib/app.js`.  On another machine, visit
-`http://__your_ip_address_here:your_port_here`, and test the basic
-chat functionality.
-
-If the other computer can't connect, you may not be connected to the
-same access point. Instead, use [ngrok][ngrok] to allow anyone on the
-internet to connect to your local server with a special URL.
-Seriously, this thing is a gem.
-
-[ngrok]: https://ngrok.com
-
-####Heroku deployment
-Deploying to Heroku is a breeze using [this guide](https://devcenter.heroku.com/articles/getting-started-with-nodejs#prepare-the-app) except for one 'gotcha'.  When you declare a port to listen to in app.js, be sure to listen to the port Heroku gives you:
-```javascript
-server.listen(process.env.PORT || 8000);
-```
-This will check first if there is an environment variable for the PORT (automatically assigned by Heroku).  Lacking that, since you're probably running the app locally, it will set it the hardcoded port of your choosing.
-
+* Attach a DB and persist messages!
