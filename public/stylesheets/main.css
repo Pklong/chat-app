@@ -30,10 +30,18 @@ form {
 
 input[type=text] {
   flex-grow: 1;
+  padding: 0 15px;
 }
 
 button {
-  
+  padding: 15px;
+  background: #6699cc;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #696969;
+  color: white;
 }
 
 section {
@@ -64,12 +72,22 @@ ul {
 }
 
 .messages {
-  flex-grow: 1;
+  flex-grow: 3;
+}
+
+.messages > li {
+ word-break: break-all;
 }
 
 .rooms {
   border-left: 5px solid #a9a9a9;
   min-width: 120px;
+  flex-shrink: 3
+}
+
+.rooms > li {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .room-list-header {
